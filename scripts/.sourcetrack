@@ -1,0 +1,17 @@
+K=$(uname -r)
+
+echo "=== INSTALLED  KERNEL RPMS ==="
+rpm -qa | grep "$K" | sort
+
+echo 
+echo "=== ACTUAL RNDIS FILES FOR RUNNING KERNEL ==="
+find /usr/lib/modules/"$K" -type f \
+	\( -iname '*rndis*' -o -iname 'cdc_ether*' -o -iname 'usbnet*' \) \
+	-print
+
+echo 
+echo "=== WHICH INSTALLED RPM OWNS THEM ==="
+rpm -qf /usr/lib/modules/"$K"/kernel/drivers/net/usb/rndis_host.ko* 2>&1
+rpm -qf	/usr/lib/modules/"$K"/kernel/drivers/net/usb/cdc_ether.ko* 2>&1
+rpm -qf	/usr/lib/modules/"$K"/kernel/drivers/net/usb/usbnet.ko* 2>&1
+
