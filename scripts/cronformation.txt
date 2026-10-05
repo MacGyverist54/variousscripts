@@ -1,0 +1,54 @@
+## Script Directory & Bin Linking
+
+To organize your scripts cleanly and make them globally executable without touching root, place them in your local user binary directory and ensure permissions are set correctly.
+
+```bash
+mkdir -p ~/.local/bin
+# Copy or symlink your custom scripts into ~/.local/bin/
+chmod +x ~/.local/bin/*
+
+```
+
+*Verification:* Run `echo $PATH | grep -q "$HOME/.local/bin" && echo "Configured" || echo "Missing from PATH"` to confirm your environment recognizes the directory.
+
+---
+
+## Cron Configuration for Brightness Control
+
+Because standard cron jobs run in a headless background environment, `xrandr` requires explicit `DISPLAY` and `XAUTHORITY` parameters to target your active X server session.
+
+1. **Identify your session variables:** Prerequisite.
+Run this command in your active terminal session to verify your display environment:
+
+```bash
+echo "DISPLAY: $DISPLAY | XAUTHORITY: ${XAUTHORITY:-$HOME/.Xauthority}"
+
+```
+
+*Verification:* Ensure it outputs an active display value (typically `:0`).
+
+
+2. **Open your user crontab:** Editor.
+Launch the crontab configuration utility:
+
+```bash
+crontab -e
+
+```
+
+*Verification:* The crontab file opens successfully in your default text editor.
+
+
+3. **Add the scheduled xrandr jobs:** Automation.
+Insert the following rules to adjust `HDMI-1` brightness at the specified times:
+
+```cron
+# Set HDMI-1 brightness to 0.5 at 6:00 PM daily
+0 18 * * * export DISPLAY=:0; export XAUTHORITY=$HOME/.Xauthority; xrandr --output HDMI-1 --brightness 0.5
+
+# Reset HDMI-1 brightness to 1.0 at 7:30 PM daily
+30 19 * * * export DISPLAY=:0; export XAUTHORITY=$HOME/.Xauthority; xrandr --output HDMI-1 --brightness 1.0
+
+```
+
+*Verification:* Run `crontab -l` to display active scheduled tasks and confirm both entries are present.
